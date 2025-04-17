@@ -1,37 +1,28 @@
 const express = require('express');
-const Reservation = require('../models/Reservation');
+const { validationResult } = require('express-validator');
 const authMiddleware = require('../middleware/authMiddleware');
+const { reservationLimiter } = require('../middleware/rateLimiter');
+const { validateReservation } = require('../middleware/validators/reservationValidator');
+const reservationController = require('../controllers/reservationController');
 
 const router = express.Router();
 
-// Get all reservations for the last 24 hours
-router.get('/all', async (req, res) => {
-    try {
-        // Calculate the date 24 hours ago
-        const twentyFourHoursAgo = new Date();
-        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
-        
-        // Find reservations created within the last 24 hours
-        const reservations = await Reservation.find({
-            createdAt: { $gte: twentyFourHoursAgo }
-        });
-        
-        res.json(reservations);
-        console.log(reservations);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+// Admin routes
+router.get('/all', authMiddleware, reservationController.getRecentReservations);
 
-// Make a reservation
-router.post('/book', async (req, res) => {
-    try {
-        const reservation = new Reservation(req.body);
-        await reservation.save();
-        res.status(201).json({ message: 'Reservation created successfully', reservation });
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
+// User Routes
+router.post('/book', 
+    reservationLimiter,
+    validateReservation,
+    // Check validation results
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        next();
+    },
+    reservationController.createReservation
+);
 
 module.exports = router;

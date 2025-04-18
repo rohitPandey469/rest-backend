@@ -24,6 +24,18 @@ const sampleBanners = [
     title: "Book Your Table",
     description: "Reserve your spot for a memorable dining experience",
     active: true
+  },
+  {
+    image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=1200&auto=format&fit=crop",
+    title: "Join Us for Happy Hour",
+    description: "Enjoy special discounts on drinks and appetizers",
+    active: true
+  },
+  {
+    image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=1200&auto=format&fit=crop",
+    title: "Follow Us on Social Media",
+    description: "Stay updated with our latest offers and events",
+    active: true
   }
 ]
 

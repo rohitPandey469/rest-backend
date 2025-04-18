@@ -61,7 +61,7 @@ exports.updateMenuItem = async (req, res) => {
       item: menuItem
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 

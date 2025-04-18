@@ -49,3 +49,35 @@ exports.createReservation = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.updateReservationStatus = async (req, res) => {
+    try {
+        const {reservationId, status} = req.body;
+
+        // Validate status
+        if (!['confirmed', 'cancelled'].includes(status)) {
+            return res.status(400).json({ error: 'Invalid status' });
+        }
+
+        const reservation = await Reservation.findByIdAndUpdate(
+            reservationId,
+            { status },
+            { new: true }
+        );
+
+        if (!reservation) {
+            return res.status(404).json({ error: 'Reservation not found' });
+        }
+
+        // Send email notification to the user
+        // await sendEmailNotification(reservation.email, status);
+        // For demonstration, we'll just log the email
+        console.log(`Email sent to ${reservation.email} with status: ${status}`);
+        res.status(200).json({ 
+            message: 'Reservation status updated successfully',
+            reservation 
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}

@@ -1,14 +1,17 @@
 const Reservation = require('../models/Reservation');
 
 exports.getRecentReservations = async (req, res) => {
+    let { lastNumHours, status } = req.query;
+    lastNumHours = parseInt(lastNumHours, 10);
+
     try {
-        // Calculate the date 24 hours ago
-        const twentyFourHoursAgo = new Date();
-        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
-        
+        // Calculate the date lastNumHours hours ago
+        const lastNumHoursAgo = new Date();
+        lastNumHoursAgo.setHours(lastNumHoursAgo.getHours() - lastNumHours);
         // Find reservations created within the last 24 hours
         const reservations = await Reservation.find({
-            createdAt: { $gte: twentyFourHoursAgo }
+            status: status || 'pending',
+            createdAt: { $gte: lastNumHoursAgo }
         });
         
         res.json(reservations);

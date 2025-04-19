@@ -2,6 +2,15 @@ const Banner = require("../models/Banner");
 
 exports.getAllBanners = async (req, res) => {       
     try {
+        const banners = await Banner.find();
+        res.json(banners);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+exports.getActiveBanners = async (req, res) => {
+    try {
         const banners = await Banner.find({ active: true });
         res.json(banners);
     } catch (error) {
@@ -11,8 +20,11 @@ exports.getAllBanners = async (req, res) => {
 
 exports.createBanner = async (req, res) => {
     try {
-        const { title, imageUrl } = req.body;
-        const banner = new Banner({ title, imageUrl });
+        const { title, image,  description, active  } = req.body;
+        if (!title || !image || !description) {
+            throw new Error("Title, image, and description are required");
+        }
+        const banner = new Banner({ title, image, description, active });
         await banner.save();
         res.status(201).json({ message: "Banner created successfully", banner });
     } catch (error) {
@@ -23,8 +35,8 @@ exports.createBanner = async (req, res) => {
 exports.updateBanner = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, imageUrl } = req.body;
-        const banner = await Banner.findByIdAndUpdate(id, { title, imageUrl }, { new: true });
+        const { title, image, description, active } = req.body;
+        const banner = await Banner.findByIdAndUpdate(id, { title, description, image, active }, { new: true });
         if (!banner) {
             return res.status(404).json({ error: "Banner not found" });
         }
@@ -59,3 +71,18 @@ exports.getBannerById = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.toggleBannerState = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const banner = await Banner.findById(id);
+        if (!banner) {
+            return res.status(404).json({ error: "Banner not found" });
+        }
+        banner.active = !banner.active;
+        await banner.save();
+        res.json({ message: "Banner state toggled successfully", banner });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}

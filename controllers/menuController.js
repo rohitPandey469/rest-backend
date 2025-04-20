@@ -17,6 +17,24 @@ exports.getAllMenuItems = async (req, res) => {
   }
 };
 
+exports.getAvailableMenuItems = async (req, res) => {
+  try {
+    const availableItems = await MenuItem.find({ available: true });
+    res.json(availableItems);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+exports.getComingSoonMenuItems = async (req, res) => {
+  try {
+    const comingSoonItems = await MenuItem.find({ available: false });
+    res.json(comingSoonItems);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 exports.getMenuItemById = async (req, res) => {
   try {
     const menuItem = await MenuItem.findById(req.params.id);
@@ -81,7 +99,7 @@ exports.deleteMenuItem = async (req, res) => {
 // Get featured menu items
 exports.getFeaturedItems = async (req, res) => {
   try {
-    const featuredItems = await MenuItem.find({ featured: true });
+    const featuredItems = await MenuItem.find({ featured: true, available: true });
     res.json(featuredItems);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -15,7 +15,6 @@ const validateMenuItem = [
   body('image').isURL(),
   body('featured').optional().isBoolean(),
   body('dietary').optional().isArray(),
-  body('dietary.*').optional().isIn(['vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'nut-free']),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -28,6 +27,8 @@ const validateMenuItem = [
 // Public routes (no auth required)
 router.get('/', menuController.getAllMenuItems);
 router.get('/featured', menuController.getFeaturedItems);
+router.get('/available', menuController.getAvailableMenuItems);
+router.get('/coming-soon', menuController.getComingSoonMenuItems);
 router.get('/category/:category', menuController.getItemsByCategory);
 router.get('/:id', menuController.getMenuItemById);
 

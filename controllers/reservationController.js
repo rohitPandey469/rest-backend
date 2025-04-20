@@ -84,3 +84,39 @@ exports.updateReservationStatus = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
+exports.deleteReservation = async (req, res) => {
+    try {
+        const { hours } = req.query;
+        console.log("Hours", hours);
+        const hoursAgo = parseInt(hours, 10);
+
+        if (isNaN(hoursAgo) || hoursAgo <= 0) {
+            return res.status(400).json({ error: 'Invalid hours parameter' });
+        }
+
+        if(hoursAgo < 24) {
+            return res.status(200).json({ message: 'Reservations can only be deleted if they are older than 24 hours' });
+        }   
+
+        // Calculate the date hoursAgo hours ago
+        const cutoffDate = new Date();
+        cutoffDate.setHours(cutoffDate.getHours() - hoursAgo);
+
+        // Delete all reservations created before the cutoff date
+        const deletedReservations = await Reservation.deleteMany({
+            createdAt: { $lt: cutoffDate }
+        });
+
+        if (deletedReservations.deletedCount === 0) {
+            return res.status(404).json({ error: 'No reservations found before the given time' });
+        }
+
+        res.status(200).json({ 
+            message: 'Reservations deleted successfully',
+            deletedCount: deletedReservations.deletedCount
+        });
+    } catch(error) {
+        res.status(500).json({ error: error.message });
+    }
+}

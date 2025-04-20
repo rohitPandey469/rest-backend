@@ -10,6 +10,7 @@ const router = express.Router();
 // Admin routes
 router.get('/all', authMiddleware, reservationController.getRecentReservations);
 router.post('/update-status', authMiddleware, reservationController.updateReservationStatus);
+router.delete('/delete', authMiddleware, reservationController.deleteReservation);
 
 // User Routes
 router.post('/book', 
